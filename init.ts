@@ -1,5 +1,16 @@
 /**
- * Scaffold a local decomm ledger folder you can copy onto an isolated machine.
+ * Copy this package into a folder you can carry onto an isolated machine.
+ *
+ * Writes `main.ts`, the store, the UI, `ledger.sh`, and `deno.json`. On a
+ * connected box run `deno task compile`, then copy the folder (including
+ * `bin/ledger`) to the far side.
+ *
+ * @example
+ * ```ts
+ * import { init } from "jsr:@decomm/ledger/init";
+ *
+ * await init("./my-ledger");
+ * ```
  *
  * @module
  */
@@ -32,6 +43,14 @@ const FILES = [
   "LICENSE",
 ] as const;
 
+/**
+ * Write a self-contained ledger tree into `directory`.
+ *
+ * @param directory Destination folder (created if missing). Relative paths are
+ * resolved from the current working directory.
+ * @param options.force Overwrite when the folder already has files. Without
+ * this, a TTY is prompted; a non-TTY run throws.
+ */
 export const init = async (
   directory: string,
   options: { force?: boolean } = {},

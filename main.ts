@@ -1,5 +1,30 @@
 /**
- * decomm ledger: append-only notes with a hash chain.
+ * Append-only notes with a SHA-256 hash chain, for a machine that may never
+ * come back online.
+ *
+ * Each entry stores `prev` (the previous hash, or the literal `genesis`) and
+ * `hash` (SHA-256 of `n`, `ts`, `prev`, and `body`). `verify` walks the file
+ * and fails if a body was edited, a line was dropped, or two notes were swapped.
+ *
+ * Use {@linkcode run} from the CLI, or {@linkcode handler} behind `Deno.serve`
+ * for a small LAN UI. Point `--dir` at a folder of `*.jsonl` ledgers.
+ *
+ * @example Run the CLI
+ * ```ts
+ * import { run } from "jsr:@decomm/ledger";
+ *
+ * await run(["--dir", "./ledgers", "init"]);
+ * await run(["--dir", "./ledgers", "create", "notes"]);
+ * await run(["--dir", "./ledgers", "add", "notes", "swapped the drive"]);
+ * console.log(await run(["--dir", "./ledgers", "verify", "notes"]));
+ * ```
+ *
+ * @example Serve the UI
+ * ```ts
+ * import { handler } from "jsr:@decomm/ledger";
+ *
+ * Deno.serve({ port: 8787 }, handler("./ledgers"));
+ * ```
  *
  * @module
  */
@@ -45,6 +70,25 @@ const json = (data: unknown, status = 200): Response =>
     headers: { "content-type": "application/json; charset=utf-8" },
   });
 
+/**
+ * HTTP handler for the ledger UI and JSON API.
+ *
+ * Serves the HTML UI at `/` and `/index.html`. JSON routes:
+ *
+ * - `GET /api/ledgers` — names, verify status, and entry counts
+ * - `POST /api/ledgers` — `{ name }` creates an empty ledger
+ * - `GET /api/ledgers/:name` — entries plus a verify result
+ * - `POST /api/ledgers/:name` — `{ body }` appends a note
+ *
+ * @param dir Folder of `*.jsonl` ledgers (created by `init` / `create`).
+ * @returns A `Deno.serve` callback.
+ *
+ * @example
+ * ```ts
+ * import { handler } from "jsr:@decomm/ledger";
+ * Deno.serve({ port: 8787 }, handler("./ledgers"));
+ * ```
+ */
 export const handler = (dir: string) => async (req: Request): Promise<Response> => {
   if (req.method !== "GET" && req.method !== "HEAD" && req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
@@ -104,6 +148,21 @@ const printEntries = async (dir: string, name: string): Promise<string> => {
   return entries.map((e) => `#${e.n} ${e.ts}\n${e.body}\n${e.hash}\n`).join("\n") + "\n";
 };
 
+/**
+ * Run one CLI command and return the text that would be printed.
+ *
+ * Commands: `init`, `create`, `add`, `show`, `list`, `verify`, `serve`.
+ * `serve` starts {@linkcode handler} and returns after the server is listening.
+ *
+ * @param argv Arguments after the binary name, including `--dir` and `--port`.
+ * @returns Help text, or a trailing-newline status string for the command.
+ *
+ * @example
+ * ```ts
+ * import { run } from "jsr:@decomm/ledger";
+ * await run(["--dir", "./ledgers", "add", "notes", "swapped the drive"]);
+ * ```
+ */
 export const run = async (argv: string[]): Promise<string> => {
   const args = parseArgs(argv);
   if (args.help || args.command === "" || args.command === "help") return HELP;
