@@ -70,7 +70,14 @@ each.
 
 ## Carry-in
 
-On a connected machine:
+```sh
+deno run -A jsr:@decomm/ledger/init ./ledger
+cd ledger
+deno task compile
+./ledger.sh --dir ./ledgers init
+```
+
+Or from this repo, on a connected machine:
 
 ```sh
 deno task compile

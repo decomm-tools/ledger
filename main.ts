@@ -1,3 +1,8 @@
+/**
+ * decomm ledger: append-only notes with a hash chain.
+ *
+ * @module
+ */
 import { parseArgs } from "./args.ts";
 import {
   appendEntry,

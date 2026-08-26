@@ -1,8 +1,13 @@
+/**
+ * Scaffold a local decomm ledger folder you can copy onto an isolated machine.
+ *
+ * @module
+ */
 const HELP = `decomm ledger
 
 Copy this tool into a folder you can carry onto an isolated machine.
 
-  deno run --allow-read=. --allow-write=./my-ledger ./init.ts ./my-ledger
+  deno run -A jsr:@decomm/ledger/init ./my-ledger
   cd my-ledger
   deno task compile
   ./ledger.sh --dir ./ledgers init
@@ -24,6 +29,7 @@ const FILES = [
   "ledger.sh",
   "deno.json",
   "README.md",
+  "LICENSE",
 ] as const;
 
 export const init = async (

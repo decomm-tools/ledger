@@ -1,0 +1,24 @@
+{
+  "name": "@decomm/ledger",
+  "version": "1.0.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./main.ts",
+    "./init": "./init.ts"
+  },
+  "publish": {
+    "include": [
+      "main.ts",
+      "args.ts",
+      "hash.ts",
+      "store.ts",
+      "ui.ts",
+      "init.ts",
+      "ledger.sh",
+      "README.md",
+      "LICENSE",
+      "deno.json",
+      "jsr.json"
+    ]
+  }
+}
