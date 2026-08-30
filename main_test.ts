@@ -26,12 +26,52 @@ Deno.test("cli create add show verify", async () => {
   const dir = await Deno.makeTempDir({ prefix: "decomm-ledger-cli-" });
   try {
     assertStringIncludes(await run(["--dir", dir, "init"]), dir);
-    assertStringIncludes(await run(["--dir", dir, "create", "notes"]), "Created notes");
-    assertStringIncludes(await run(["--dir", dir, "add", "notes", "hello"]), "#0");
+    assertStringIncludes(
+      await run(["--dir", dir, "create", "notes"]),
+      "Created notes",
+    );
+    assertStringIncludes(
+      await run(["--dir", dir, "add", "notes", "hello"]),
+      "#0",
+    );
     const shown = await run(["--dir", dir, "show", "notes"]);
     assertStringIncludes(shown, "hello");
     assertStringIncludes(await run(["--dir", dir, "list"]), "notes");
     assertStringIncludes(await run(["--dir", dir, "verify"]), "ok");
+  } finally {
+    await Deno.remove(dir, { recursive: true });
+  }
+});
+
+const ledgerSh = async (args: string[]): Promise<string> => {
+  const proc = new Deno.Command("sh", {
+    args: [`${Deno.cwd()}/ledger.sh`, ...args],
+    cwd: Deno.cwd(),
+    stdout: "piped",
+    stderr: "piped",
+  });
+  const out = await proc.output();
+  const stdout = new TextDecoder().decode(out.stdout);
+  const stderr = new TextDecoder().decode(out.stderr);
+  if (!out.success) throw new Error(stderr || stdout);
+  return stdout;
+};
+
+Deno.test("ledger.sh init create add verify is the carry-in example", async () => {
+  const dir = await Deno.makeTempDir({ prefix: "decomm-ledger-sh-" });
+  try {
+    assertStringIncludes(await ledgerSh(["--dir", dir, "init"]), dir);
+    assertStringIncludes(
+      await ledgerSh(["--dir", dir, "create", "notes"]),
+      "Created notes",
+    );
+    assertStringIncludes(
+      await ledgerSh(["--dir", dir, "add", "notes", "swapped the drive"]),
+      "#0",
+    );
+    const shown = await ledgerSh(["--dir", dir, "show", "notes"]);
+    assertStringIncludes(shown, "swapped the drive");
+    assertStringIncludes(await ledgerSh(["--dir", dir, "verify"]), "ok");
   } finally {
     await Deno.remove(dir, { recursive: true });
   }
@@ -43,7 +83,9 @@ Deno.test("http read write", async () => {
     const handle = handler(dir);
     const created = await handle(req("/api/ledgers", "POST", { name: "ops" }));
     assertEquals(created.status, 200);
-    const added = await handle(req("/api/ledgers/ops", "POST", { body: "rack moved" }));
+    const added = await handle(
+      req("/api/ledgers/ops", "POST", { body: "rack moved" }),
+    );
     assertEquals(added.status, 200);
     const listed = await handle(req("/api/ledgers"));
     const data = await listed.json();

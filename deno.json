@@ -1,6 +1,6 @@
 {
   "name": "@decomm/ledger",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "exports": {
     ".": "./main.ts",
@@ -25,7 +25,7 @@
     "ledger": "deno run --allow-read --allow-write --allow-net --allow-env=LEDGER_DIR main.ts",
     "dev": "deno run --allow-read --allow-write --allow-net --allow-env=LEDGER_DIR --watch main.ts serve",
     "compile": "mkdir -p bin && deno compile --allow-read --allow-write --allow-net --allow-env=LEDGER_DIR --output bin/ledger main.ts",
-    "test": "deno test --allow-read --allow-write --allow-net --allow-env",
+    "test": "deno test --allow-read --allow-write --allow-net --allow-env --allow-run",
     "check": "deno check main.ts args.ts hash.ts store.ts ui.ts init.ts",
     "fmt": "deno fmt",
     "lint": "deno lint"

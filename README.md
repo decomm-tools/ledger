@@ -70,20 +70,26 @@ each.
 
 ## Carry-in
 
+Init on a connected machine. Copy the folder. Run dark.
+
+### Init
+
 ```sh
 deno run -A jsr:@decomm/ledger/init ./ledger
 cd ledger
 deno task compile
-./ledger.sh --dir ./ledgers init
 ```
 
-Or from this repo, on a connected machine:
+Or from this repo: `deno task compile`. That leaves `bin/ledger`.
 
-```sh
-deno task compile
-```
+### Copy
 
-Copy this folder, including `bin/ledger`, onto the isolated box.
+Carry the whole `ledger/` folder onto the isolated box — USB, sneakernet,
+[ferry](https://github.com/decomm-tools/ferry). Include `bin/`.
+
+### Run dark
+
+No network. The box never needs to come back online.
 
 ```sh
 ./ledger.sh --dir ./ledgers init
@@ -93,7 +99,7 @@ Copy this folder, including `bin/ledger`, onto the isolated box.
 ./ledger.sh --dir ./ledgers serve --port 8787
 ```
 
-`ledger.sh` runs the compiled binary if it exists, otherwise `deno run`. The isolated box does not
+`ledger.sh` uses the compiled binary if present, otherwise `deno run`. The isolated box does not
 need Deno if you compiled first.
 
 ## UI
